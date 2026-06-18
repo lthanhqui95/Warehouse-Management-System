@@ -3,15 +3,15 @@ services:
     image: postgres:16-alpine
     container_name: wms-postgres
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: wms
+      POSTGRES_USER: wms
+      POSTGRES_PASSWORD: wms
     ports:
       - "5432:5432"
     volumes:
       - wms-postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -U wms -d wms"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -23,15 +23,16 @@ services:
       db:
         condition: service_healthy
     environment:
-      PGPASSWORD: postgres
+      PGPASSWORD: ${DB_ADMIN_PASSWORD:-postgres}
     command: >
       sh -c "
-      psql -h db -U postgres -d postgres -tc \"SELECT 1 FROM pg_roles WHERE rolname = 'wms'\" | grep -q 1 ||
-      psql -h db -U postgres -d postgres -c \"CREATE ROLE wms WITH LOGIN PASSWORD 'wms'\";
-      psql -h db -U postgres -d postgres -tc \"SELECT 1 FROM pg_database WHERE datname = 'wms'\" | grep -q 1 ||
-      psql -h db -U postgres -d postgres -c \"CREATE DATABASE wms OWNER wms\";
-      psql -h db -U postgres -d postgres -c \"ALTER DATABASE wms OWNER TO wms\";
+      psql -h db -U ${DB_ADMIN_USERNAME:-postgres} -d ${DB_ADMIN_DATABASE:-postgres} -tc \"SELECT 1 FROM pg_roles WHERE rolname = 'wms'\" | grep -q 1 ||
+      psql -h db -U ${DB_ADMIN_USERNAME:-postgres} -d ${DB_ADMIN_DATABASE:-postgres} -c \"CREATE ROLE wms WITH LOGIN PASSWORD 'wms'\";
+      psql -h db -U ${DB_ADMIN_USERNAME:-postgres} -d ${DB_ADMIN_DATABASE:-postgres} -tc \"SELECT 1 FROM pg_database WHERE datname = 'wms'\" | grep -q 1 ||
+      psql -h db -U ${DB_ADMIN_USERNAME:-postgres} -d ${DB_ADMIN_DATABASE:-postgres} -c \"CREATE DATABASE wms OWNER wms\";
+      psql -h db -U ${DB_ADMIN_USERNAME:-postgres} -d ${DB_ADMIN_DATABASE:-postgres} -c \"ALTER DATABASE wms OWNER TO wms\";
       "
+    profiles: ["legacy-db-repair"]
     restart: "no"
 
 volumes:
