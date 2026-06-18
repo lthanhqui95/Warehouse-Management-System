@@ -31,7 +31,7 @@ compose.yaml  Local PostgreSQL database
 ### Database
 
 ```bash
-docker compose up -d db db-init
+docker compose up -d db
 ```
 
 ### Backend
@@ -67,15 +67,15 @@ Frontend runs at <http://localhost:3000>.
 
 ## Database Troubleshooting
 
-If PostgreSQL reports `FATAL: role "wms" does not exist`, run the idempotent database initializer again:
+If PostgreSQL reports `FATAL: role "wms" does not exist`, you are likely using an older Docker volume that was created before the Compose database service created the `wms` role directly. Either reset the local development volume, or run the legacy repair initializer with the original `postgres` admin credentials:
 
 ```bash
-docker compose up db-init
+docker compose --profile legacy-db-repair run --rm db-init
 ```
 
 If an old local PostgreSQL volume is corrupted or no longer needed, reset it and recreate the database role/schema:
 
 ```bash
 docker compose down -v
-docker compose up -d db db-init
+docker compose up -d db
 ```
