@@ -960,3 +960,20 @@ These decisions are frozen and must not be changed by AI tools.
 14. Integration Tests Required
 15. Responsive Design Required
 16. Audit Trail Required
+# Mobile Strategy
+
+## Use PWA (Progressive Web App).
+
+Requirements:
+
+- Installable on iPhone
+- Installable on Android
+- Standalone mode
+- Responsive design
+- Mobile-first UI
+
+Native mobile applications are out of MVP scope.
+
+Do not use Flutter.
+
+Do not use React Native.
